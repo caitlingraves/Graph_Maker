@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Graph from './components/Graph';
 import Sidebar from './components/Sidebar';
+import SidebarRight from './components/SidebarRight'
 import './styles/App.css';
 
 const App = () => {
@@ -33,6 +34,14 @@ const App = () => {
           setElements={setElements} 
           selectedMode={selectedMode} 
           isDirected={isDirected}
+        />
+        <SidebarRight
+          elements={elements} 
+          setElements={setElements} 
+          setSelectedMode={setSelectedMode} 
+          getGraphInfo={getGraphInfo}
+          isDirected={isDirected}
+          setIsDirected={setIsDirected}
         />
       </div>
     );

@@ -5,6 +5,10 @@ const Sidebar = ({ elements = [], setElements, setSelectedMode, getGraphInfo, is
   const [isBipartite, setIsBipartite] = useState(null);
   const [bridges, setBridges] = useState([]);
   const [selectedColor, setSelectedColor] = useState('#000000');
+
+  const [componentsAnalyzed, setComponentsAnalyzed] = useState(false);
+  const [bridgesAnalyzed, setBridgesAnalyzed] = useState(false);
+
   
   const [source, setSource] = useState('');
   const [target, setTarget] = useState('');
@@ -25,47 +29,6 @@ const Sidebar = ({ elements = [], setElements, setSelectedMode, getGraphInfo, is
     }
   };
 
-  const changeElementColor = (id) => {
-    setElements((prev) =>
-      prev.map((el) =>
-        el.data.id === id ? { ...el, data: { ...el.data, color: selectedColor } } : el
-      )
-    );
-  };
-
-  const changeEdgeColor = (id) => {
-    const newColor = prompt('Enter a color (name, hex, or rgb):', '#000000');
-    if (newColor) {
-      setElements((prev) =>
-        prev.map((el) =>
-          el.data.id === id ? { ...el, data: { ...el.data, color: newColor } } : el
-        )
-      );
-    }
-  };
-
-  const renameEdge = (id) => {
-    const newName = prompt('Enter a new name:');
-    if (newName) {
-      setElements((prev) =>
-        prev.map((el) =>
-          el.data.id === id ? { ...el, data: { ...el.data, label: newName } } : el
-        )
-      );
-    }
-  };
-
-  const changeEdgeWeight = (id) => {
-    const newWeight = prompt('Enter a new weight (number):');
-    if (!isNaN(newWeight) && newWeight !== null) {
-      setElements((prev) =>
-        prev.map((el) =>
-          el.data.id === id ? { ...el, data: { ...el.data, weight: Number(newWeight) } } : el
-        )
-      );
-    }
-  };
-
   const findComponents = () => {
     const components = calculateComponents(elements);
     setComponents(components);
@@ -74,29 +37,6 @@ const Sidebar = ({ elements = [], setElements, setSelectedMode, getGraphInfo, is
   const calculateBridges = () => {
     const bridgeEdges = findBridges(elements);
     setBridges(bridgeEdges);
-  };
- 
-
-  const changeColor = (id) => {
-    const newColor = prompt('Enter a color (name, hex, or rgb):', '#000000'); // Prompt user for color
-    if (newColor) {
-      setElements((prev) =>
-        prev.map((el) =>
-          el.data.id === id ? { ...el, data: { ...el.data, color: newColor } } : el
-        )
-      );
-    }
-  };
-
-  const reName = (id) => {
-    const newName = prompt('Enter a new name:'); // Prompt user for color
-    if (newName) {
-      setElements((prev) =>
-        prev.map((el) =>
-          el.data.id === id ? { ...el, data: { ...el.data, label: newName } } : el
-        )
-      );
-    }
   };
 
   // Function to check if graph is bipartite
@@ -167,8 +107,10 @@ const Sidebar = ({ elements = [], setElements, setSelectedMode, getGraphInfo, is
       )}
 
 <h3>Components</h3>
-      {components.length === 0 ? (
+      {!componentsAnalyzed ? (
         <p>Click "Find Components" to analyze the graph.</p>
+      ) : components.length === 0 ? (
+        <p>No components found.</p>
       ) : (
         <ul>
           {components.map((component, index) => (
@@ -179,9 +121,11 @@ const Sidebar = ({ elements = [], setElements, setSelectedMode, getGraphInfo, is
         </ul>
       )}
 
-<h3>Bridge Edges</h3>
-      {bridges.length === 0 ? (
+      <h3>Bridge Edges</h3>
+      {!bridgesAnalyzed ? (
         <p>Click "Find Bridges" to analyze the graph.</p>
+      ) : bridges.length === 0 ? (
+        <p>No bridges found.</p>
       ) : (
         <ul>
           {bridges.map((bridge, index) => (
@@ -221,56 +165,6 @@ const Sidebar = ({ elements = [], setElements, setSelectedMode, getGraphInfo, is
           <p>Total Weight: {shortestPath.distance}</p>
         </div>
       )}
-
-      <h3>Elements</h3>
-      <h2>Vertices</h2>
-      <ul>
-        {elements
-          .filter((el) => !el.data.source) // Filter for vertices only
-          .map((el) => (
-            <li key={el.data.id}>
-              <span>{el.data.label || el.data.id}</span>
-              Degree: {degrees[el.data.id] || 0}
-              <button
-                onClick={() =>
-                  setElements((prev) => prev.filter((e) => e.data.id !== el.data.id))
-                }
-              >
-                Delete
-              </button>
-              <input
-                  type="color"
-                  value={selectedColor}
-                  onChange={(e) => setSelectedColor(e.target.value)}
-                />
-              <button onClick={() => changeElementColor(el.data.id)}>Change Color</button>
-              <button onClick={() => reName(el.data.id)}>ReName</button>
-            </li>
-          ))}
-      </ul>
-      <h2>Edges</h2>
-      <ul>
-        {elements
-          .filter((el) => el.data.source && el.data.target) // Filter for edges
-          .map((el) => (
-            <li key={el.data.id}>
-              {el.data.label || `${el.data.source} -> ${el.data.target}`}
-              {el.data.weight !== undefined && ` (Weight: ${el.data.weight})`}
-              <div>
-                <button onClick={() => changeEdgeColor(el.data.id)}>Change Color</button>
-                <button
-                  onClick={() =>
-                    setElements((prev) => prev.filter((e) => e.data.id !== el.data.id))
-                  }
-                >
-                  Delete
-                </button>
-                <button onClick={() => renameEdge(el.data.id)}>Rename</button>
-                <button onClick={() => changeEdgeWeight(el.data.id)}>Change Weight</button>
-              </div>
-            </li>
-          ))}
-      </ul>
     </div>
   );
 };
